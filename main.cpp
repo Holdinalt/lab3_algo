@@ -3,15 +3,15 @@
 #include <vector>
 
 void startBlock();
-int getValFromMap(const long*);
+int getValFromMap(std::string);
 void blockStart();
 void blockEnd();
 
-int cacheTime = 50;
+int cacheTime = 10;
 
-std::vector<std::map <long, int>> mapVector;
+std::vector<std::map <std::string, int>> mapVector;
 
-std::map <long, int> cacheMap;
+std::map <std::string, int> cacheMap;
 
 int main() {
 
@@ -24,21 +24,21 @@ int main() {
 
         //std::cout << input << " input\n";
 
-        int separator = input.find('=');
-
         if (input == "{"){
             startBlock();
             continue;
         }
 
+        int separator = input.find('=');
+
         try{
             int number = std::stoi(input.substr(separator + 1)); //number
             //std::cout << input.substr(0, separator) << " = " << number << "\n";
-            mapVector.back()[std::hash<std::string>{}((input.substr(0, separator)))] = number;
+            mapVector[0][input.substr(0, separator)] = number;
         } catch (...){
-            int argValue = mapVector.back()[std::hash<std::string>{}(input.substr(separator + 1))]; //variable
+            int argValue = mapVector[0][input.substr(separator + 1)]; //variable
             std::cout << argValue << "\n";
-            mapVector.back()[std::hash<std::string>{}((input.substr(0, separator)))] = argValue;
+            mapVector[0][input.substr(0, separator)] = argValue;
         }
     }
 
@@ -52,7 +52,6 @@ void startBlock(){
     std::cin >> input;
     while(input != "}"){
         //std::cout << input << " input\n";
-        int separator = input.find('=');
 
         if (input == "{"){
             startBlock();
@@ -60,18 +59,19 @@ void startBlock(){
             continue;
         }
 
+        int separator = input.find('=');
+
         try{
             int number = std::stoi(input.substr(separator + 1)); //number
             //std::cout << input.substr(0, separator) << " = " << number << "\n";
-            mapVector.back()[std::hash<std::string>{}(input.substr(0, separator))] = number;
-            cacheMap[std::hash<std::string>{}(input.substr(0, separator))] = number;
+            mapVector.back()[input.substr(0, separator)] = number;
+            cacheMap[input.substr(0, separator)] = number;
         } catch (...){
-            long hash = std::hash<std::string>{}(input.substr(separator + 1));
-            int argValue = getValFromMap(&hash); //variable
+            int argValue = getValFromMap(input.substr(separator + 1)); //variable
 
             std::cout << argValue << "\n";
-            mapVector.back()[std::hash<std::string>{}(input.substr(0, separator))] = argValue;
-            cacheMap[std::hash<std::string>{}(input.substr(0, separator))] = argValue;
+            mapVector.back()[input.substr(0, separator)] = argValue;
+            cacheMap[input.substr(0, separator)] = argValue;
         }
         std::cin >> input;
     }
@@ -79,11 +79,11 @@ void startBlock(){
     //std::cout << "block end\n";
 }
 
-int getValFromMap(const long *hash){
+int getValFromMap(const std::string str){
     unsigned int i = mapVector.size();
     while (i > 0){
-        if(mapVector[i-1].count(*hash) == 1){
-            return mapVector[i-1][*hash];
+        if(mapVector[i-1].count(str) == 1){
+            return mapVector[i-1][str];
         }
         i--;
     }
