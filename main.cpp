@@ -1,15 +1,21 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <stack>
+
+class my_stack : public std::stack<std::map <std::string, int>> {
+public:
+    using std::stack<std::map <std::string, int>>::c; // expose the container
+};
 
 void startBlock();
 int getValFromMap(std::string);
 void blockStart();
 void blockEnd();
 
-int cacheTime = 10;
+int cacheTime = 50;
 
-std::vector<std::map <std::string, int>> mapVector;
+my_stack mapVector;
 
 std::map <std::string, int> cacheMap;
 
@@ -18,7 +24,7 @@ int main() {
 
     std::string input;
 
-    mapVector.emplace_back(); //addMap
+    mapVector.push(std::map <std::string, int>()); //addMap
 
     while (std::cin >> input) {
 
@@ -34,11 +40,11 @@ int main() {
         try{
             int number = std::stoi(input.substr(separator + 1)); //number
             //std::cout << input.substr(0, separator) << " = " << number << "\n";
-            mapVector[0][input.substr(0, separator)] = number;
+            mapVector.top()[input.substr(0, separator)] = number;
         } catch (...){
-            int argValue = mapVector[0][input.substr(separator + 1)]; //variable
+            int argValue = mapVector.top()[input.substr(separator + 1)]; //variable
             std::cout << argValue << "\n";
-            mapVector[0][input.substr(0, separator)] = argValue;
+            mapVector.top()[input.substr(0, separator)] = argValue;
         }
     }
 
@@ -64,13 +70,13 @@ void startBlock(){
         try{
             int number = std::stoi(input.substr(separator + 1)); //number
             //std::cout << input.substr(0, separator) << " = " << number << "\n";
-            mapVector.back()[input.substr(0, separator)] = number;
+            mapVector.top()[input.substr(0, separator)] = number;
             cacheMap[input.substr(0, separator)] = number;
         } catch (...){
             int argValue = getValFromMap(input.substr(separator + 1)); //variable
 
             std::cout << argValue << "\n";
-            mapVector.back()[input.substr(0, separator)] = argValue;
+            mapVector.top()[input.substr(0, separator)] = argValue;
             cacheMap[input.substr(0, separator)] = argValue;
         }
         std::cin >> input;
@@ -80,10 +86,11 @@ void startBlock(){
 }
 
 int getValFromMap(const std::string str){
+
     unsigned int i = mapVector.size();
     while (i > 0){
-        if(mapVector[i-1].count(str) == 1){
-            return mapVector[i-1][str];
+        if(mapVector.c[i-1].count(str) == 1){
+            return mapVector.c[i-1][str];
         }
         i--;
     }
@@ -92,14 +99,14 @@ int getValFromMap(const std::string str){
 
 void blockStart(){
     if(mapVector.size() % cacheTime == 0){
-        mapVector.push_back(cacheMap);
+        mapVector.push(cacheMap);
     }
-    mapVector.emplace_back(); //addMap
+    mapVector.push(std::map <std::string, int>()); //addMap
 }
 
 void blockEnd(){
-    mapVector.pop_back();
+    mapVector.pop();
     if(mapVector.size() % cacheTime == 0){
-        mapVector.pop_back();
+        mapVector.pop();
     }
 }
