@@ -2,16 +2,20 @@
 #include <map>
 #include <vector>
 
-std::map <std::string, int> makeCacheMap();
+std::map <int, int> makeCacheMap();
 void startBlock();
-int getValFromMap(std::string);
+int getValFromMap(int);
 void blockStart();
 void blockEnd();
+int getVariableId(std::string str);
 
 int cacheTime = 1000;
 
-std::vector<std::map <std::string, int>> mapVector;
+std::vector<std::map <int, int>> mapVector;
 
+int counter = 1;
+
+std::map <std::string, int> hashMap;
 
 
 int main() {
@@ -42,13 +46,13 @@ int main() {
         }
 
         if(variable){
-            int argValue = mapVector[0][input.substr(separator + 1)]; //variable
+            int argValue = mapVector[0][getVariableId(input.substr(separator + 1))]; //variable
             std::cout << argValue << "\n";
-            mapVector[0][input.substr(0, separator)] = argValue;
+            mapVector[0][getVariableId(input.substr(0, separator))] = argValue;
         } else{
             int number = std::stoi(input.substr(separator + 1)); //number
             //std::cout << input.substr(0, separator) << " = " << number << "\n";
-            mapVector[0][input.substr(0, separator)] = number;
+            mapVector[0][getVariableId(input.substr(0, separator))] = number;
         }
     }
 
@@ -81,14 +85,14 @@ void startBlock(){
         }
 
         if(variable){
-            int argValue = getValFromMap(input.substr(separator + 1)); //variable
+            int argValue = getValFromMap(getVariableId(input.substr(separator + 1))); //variable
 
             std::cout << argValue << "\n";
-            mapVector.back()[input.substr(0, separator)] = argValue;
+            mapVector.back()[getVariableId(input.substr(0, separator))] = argValue;
         } else{
             int number = std::stoi(input.substr(separator + 1)); //number
             //std::cout << input.substr(0, separator) << " = " << number << "\n";
-            mapVector.back()[input.substr(0, separator)] = number;
+            mapVector.back()[getVariableId(input.substr(0, separator))] = number;
         }
         std::cin >> input;
     }
@@ -96,7 +100,7 @@ void startBlock(){
     //std::cout << "block end\n";
 }
 
-int getValFromMap(const std::string str){
+int getValFromMap(const int str){
     int i = (int)mapVector.size() - 1;
 
     while (i > -1){
@@ -122,16 +126,26 @@ void blockEnd(){
     }
 }
 
-std::map <std::string, int> makeCacheMap(){
+std::map <int, int> makeCacheMap(){
 
-    std::map <std::string, int> cacheMap;
+    std::map <int, int> cacheMap;
 
     int size = mapVector.size();
 
-    for (unsigned int i = (size / cacheTime) * cacheTime; i < size; ++i){
+    for (unsigned int i = (size / cacheTime - 1) * cacheTime; i < size; ++i){
         for(const auto& pair : mapVector[i]) {
             cacheMap[pair.first] = pair.second;
         }
     }
     return cacheMap;
+}
+
+int getVariableId(std::string str){
+    if (hashMap[str] != 0){
+        return hashMap[str];
+    }else{
+        hashMap[str] = counter;
+        counter++;
+        return counter - 1;
+    }
 }
