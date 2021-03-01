@@ -8,7 +8,7 @@ int getValFromMap(std::string);
 void blockStart();
 void blockEnd();
 
-int cacheTime = 50;
+int cacheTime = 1000;
 
 std::vector<std::map <std::string, int>> mapVector;
 
@@ -126,9 +126,11 @@ std::map <std::string, int> makeCacheMap(){
 
     std::map <std::string, int> cacheMap;
 
-    for (std::map <std::string, int> map : mapVector){
-        for(auto & it : map) {
-            cacheMap[it.first] = it.second;
+    int size = mapVector.size();
+
+    for (unsigned int i = (size / cacheTime) * cacheTime; i < size; ++i){
+        for(const auto& pair : mapVector[i]) {
+            cacheMap[pair.first] = pair.second;
         }
     }
     return cacheMap;
